@@ -10,6 +10,7 @@ class MLP(nn.Module):
         self.relu = nn.GELU(approximate="tanh")
         # 降维回去
         self.c_proj = nn.Linear(4 * config.n_embd, config.n_embd)
+        self.c_proj.NANOGPT_SCALE_INIT = 1
 
     def forward(self, x):
         x = self.c_fc(x)

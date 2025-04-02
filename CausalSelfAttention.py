@@ -13,6 +13,7 @@ class CausalSelfAttention(nn.Module):
         self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd)
         # transformer 原始论文中的 WO
         self.c_proj = nn.Linear(config.n_embd, config.n_embd)
+        self.c_proj.NANOGPT_SCALE_INIT = 1
         self.n_head = config.n_head
         self.n_embd = config.n_embd
         # 注册一个下三角因果掩码（防止看到未来信息，即后面 token 的 value 不会对当前 token 的输出有贡献）
