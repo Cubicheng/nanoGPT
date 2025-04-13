@@ -49,15 +49,18 @@ class CausalSelfAttention(nn.Module):
         # 这里 transpose(-2,-1) 表示交换最后两个维度
         # size(-1) 表示最后一个维度的大小
         # att: (B,n_head,T,T)
-        att = q @ k.transpose(-2, -1) * (1.0 / math.sqrt(k.size(-1)))
+        # att = q @ k.transpose(-2, -1) * (1.0 / math.sqrt(k.size(-1)))
         # 覆盖上一个下三角的 -inf，防止后面的 token 影响前面的 token
-        att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float("-inf"))
+        # att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float("-inf"))
         # softmax 转成概率
-        att = F.softmax(att, dim=-1)
+        # att = F.softmax(att, dim=-1)
 
         # att 现在就是 每一个 token 与其他 token 的注意力权重
         # 这里 @ 乘法只对最后两个维度做乘法
-        y = att @ v
+        # y = att @ v
+
+        y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+
         # 将单头的 value 向量拼接成完整的 value（就是直接 concat，可以参见 transformer 原论文）
         # transpose(1,2) 把上面交换过的维度交换回来
         # contiguous() 确保张量内存连续
