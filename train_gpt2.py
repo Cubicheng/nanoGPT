@@ -8,6 +8,18 @@ import time
 import math
 import os
 
+# 训练时参数
+# 4090 24 g 单卡
+# total_batch_size = 2^19
+# B = 16
+# T = 1024
+# max_lr = 6e-4
+# min_lr = max_lr * 0.1
+# warmup_steps = 715
+# max_steps = 19034
+# val_interval_steps = 50
+# checkpoint_interval_steps = 500
+
 total_batch_size = 8192
 B = 4
 T = 256
@@ -68,9 +80,6 @@ def sample_model():
     x = tokens.to(device)
     sample_rng = torch.Generator(device=device)
     sample_rng.manual_seed(42)
-
-    torch.manual_seed(42)
-    torch.cuda.manual_seed(42)
     while x.size(1) < max_length:
         with torch.no_grad():
             logits, loss = model(x)
@@ -160,7 +169,7 @@ for step in range(max_steps):
     delta_time = t1 - t0
     tokens_per_sec = train_loader.B * train_loader.T * grad_accum_steps / delta_time
     print(
-        f"step:{step} | loss:{loss_accum.item():.3f} | delta_time:{delta_time:.5f}ms | norm:{norm:.4f} | lr:{lr:4e} | tokens_per_sec:{tokens_per_sec:.5f}"
+        f"step:{step} | loss:{loss_accum.item():.3f} | delta_time:{delta_time*1000:.5f}ms | norm:{norm:.4f} | lr:{lr:4e} | tokens_per_sec:{tokens_per_sec:.5f}"
     )
     with open(log_file, "a") as f:
         f.write(f"{step} train {loss_accum.item():.6f}\n")

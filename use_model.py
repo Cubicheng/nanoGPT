@@ -45,8 +45,11 @@ print(f"using device: {device}")
 
 # 加载已训练模型
 model = GPT(GPTConfig(vocab_size=50304)).to(device)
-checkpoint = torch.load("log/model_00100.pt", map_location=device, weights_only=True)
-model.load_state_dict(checkpoint["model"])
+checkpoint = torch.load("log/model_02000.pt", map_location=device, weights_only=True)
+new_state_dict = {
+    k.replace("_orig_mod.", ""): v for k, v in checkpoint["model"].items()
+}
+model.load_state_dict(new_state_dict)
 # 切换评估模式
 model.eval()
 # 执行生成逻辑
